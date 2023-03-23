@@ -1,4 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using TimeChimp.Backend.Assessment.Interfaces;
+using TimeChimp.Backend.Assessment.Services;
 
 namespace TimeChimp.Backend.Assessment
 {
@@ -10,6 +12,7 @@ namespace TimeChimp.Backend.Assessment
         /// <param name="services"></param>
         public static void AddServices(this IServiceCollection services)
         {
+            services.AddTransient<IGeneralNewsService, GeneralNewsService>();
         }
 
         /// <summary>
