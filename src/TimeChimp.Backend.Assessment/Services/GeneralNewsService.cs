@@ -17,7 +17,11 @@ namespace TimeChimp.Backend.Assessment.Services
             _config = config;
         }
 
-        public async Task<List<string>> GetGeneralNews()
+        /// <summary>
+        /// Fetches the list of recent news from the RSS feed for the website Nu.nl
+        /// </summary>
+        /// <returns>The list of new titles as a list of strings</returns>
+        public async Task<List<string>> GetGeneralNews(string titleFilter, bool sortByTitle)
         {
             // Get the RSS feed url from the appsettings
             var url = _config["RSS:Url"];
@@ -25,10 +29,19 @@ namespace TimeChimp.Backend.Assessment.Services
             using var reader = XmlReader.Create(url);
             var feed = SyndicationFeed.Load(reader);
 
-            return feed.Items.Select<SyndicationItem, string>(item => item.Title.Text.ToString())
-                .ToList(); //.ToList<string>(); Select(x => x.Title).ToList<string>() .Skip(10) .ToList<string>();
+            // Create the response
+            var response = feed.Items.Select<SyndicationItem, string>(item => item.Title.Text.ToString())
+                .ToList();
 
-            //throw new System.NotImplementedException();
+            // Filter by name if requested
+            if (titleFilter != null)
+                response = response.Where(item => item.Contains(titleFilter)).ToList();
+
+            // Order by title if requested
+            if (sortByTitle)
+                response = response.OrderBy(item => item).ToList();
+
+            return response;
         }
     }
 }

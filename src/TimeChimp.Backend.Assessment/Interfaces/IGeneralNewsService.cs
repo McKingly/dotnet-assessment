@@ -5,7 +5,6 @@ namespace TimeChimp.Backend.Assessment.Interfaces
 {
     public interface IGeneralNewsService
     {
-        //Task<string> GetGeneralNews(); 
-        Task<List<string>> GetGeneralNews(); 
+        Task<List<string>> GetGeneralNews(string titleFilter, bool sortByTitle); 
     }
 }

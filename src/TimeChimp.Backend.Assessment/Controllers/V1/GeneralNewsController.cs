@@ -18,9 +18,17 @@ namespace TimeChimp.Backend.Assessment.Controllers.V1
             _generalNewsService = generalNewsService;
         }
 
+        /// <summary>
+        /// GET method responsible for returning the list of recent general news
+        /// </summary>
+        /// <param name="number">Optional parameter</param>
+        /// <returns>A list of strings containing all the titles</returns>
         [HttpGet]
-        public async Task<IActionResult> GetNews() {
-            var response = await _generalNewsService.GetGeneralNews();
+        public async Task<IActionResult> GetNews(int number,
+            string title,
+            bool sortByTitle)
+        {
+            var response = await _generalNewsService.GetGeneralNews(title, sortByTitle);
             return new OkObjectResult(response); 
         }
 
