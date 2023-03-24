@@ -4,6 +4,7 @@ using Microsoft.Extensions.Caching.Memory;
 using System.ComponentModel.DataAnnotations;
 using System.Threading.Tasks;
 using TimeChimp.Backend.Assessment.Interfaces;
+using TimeChimp.Backend.Assessment.Models;
 using TimeChimp.Backend.Assessment.Services;
 
 namespace TimeChimp.Backend.Assessment.Controllers.V1
@@ -27,8 +28,12 @@ namespace TimeChimp.Backend.Assessment.Controllers.V1
         /// <param name="ascending"></param>
         /// <returns>A list of NewsItem objects</returns>
         [HttpGet]
-        public async Task<IActionResult> GetNews(string title,
-            bool ascending = true
+        //[Route("{type}")]
+        public async Task<IActionResult> GetNews(
+            //NewsType type,
+            string title,
+            bool ascending
+            //string category
             )
         {
             var response = await _generalNewsService.GetGeneralNews(title, ascending);

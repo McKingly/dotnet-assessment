@@ -14,11 +14,12 @@ namespace TimeChimp.Backend.Assessment.Services
     public class GeneralNewsService : IGeneralNewsService
     {
         private readonly IConfiguration _config;
+        private readonly IMemoryCache _cache;
+        private const string cacheKey = "GeneralNewsCacheKey";
 
-        public GeneralNewsService(IConfiguration config) {
+        public GeneralNewsService(IConfiguration config, IMemoryCache cache) {
             _config = config;
-            //private ICacheProvider _cache;
-
+            _cache = cache;
         }
 
         /// <summary>
@@ -29,33 +30,37 @@ namespace TimeChimp.Backend.Assessment.Services
         /// <returns>The list of new titles as a list of strings</returns>
         public async Task<List<NewsItem>> GetGeneralNews(string title, bool sortByAsc)
         {
-            // Check to see the cache
+            IEnumerable <NewsItem> response;
 
-            // Get the RSS feed url from the appsettings
-            var url = _config["RSS:Url"];
+            //var cacheKey = Title;
 
-            using var reader = XmlReader.Create(url);
-            var feed = SyndicationFeed.Load(reader);
-
-            // Create the response
-            var response = feed.Items.Select(item => new NewsItem
+            // Check to see if the cache has data.
+            // If not, request information from the feed
+            // If yes, return the information present in the cache 
+            if (!_cache.TryGetValue(cacheKey, out response))
             {
-                Title = item.Title.Text.ToString(),
-                Description = item.Summary.Text.ToString(),
-                Creator = item.Authors.Any() ? item.Authors.FirstOrDefault().Name : "Author Unknown",
-                PubDate = item.PublishDate.DateTime,
-                Categories = item.Categories.Select(cat => cat.Name).ToList()
-            }).ToList();
+                // Get the RSS feed url from the appsettings
+                var url = _config["RSS:Url"];
 
-            //var cacheEntryOptions = new MemoryCacheEntryOptions
-            //{
-            //    AbsoluteExpiration = DateTime.Now.AddMinutes(5),
-            //    SlidingExpiration = TimeSpan.FromMinutes(2),
-            //    Size = 1024,
-            //};
-            //_cache.Set(CacheKeys.Employees, response, cacheEntryOptions);
+                // Read from the RSS feed
+                using var reader = XmlReader.Create(url);
+                var feed = SyndicationFeed.Load(reader);
 
-            //Cache end 
+                // Create the response
+                response = feed.Items.Select(item => new NewsItem
+                {
+                    Title = item.Title.Text.ToString(),
+                    Description = item.Summary.Text.ToString(),
+                    Creator = item.Authors.Any() ? item.Authors.FirstOrDefault().Name : "Author Unknown",
+                    PubDate = item.PublishDate.DateTime,
+                    Categories = item.Categories.Select(cat => cat.Name).ToList()
+                }).ToList();
+
+                var cacheEntryOptions = new MemoryCacheEntryOptions()
+                    .SetSlidingExpiration(TimeSpan.FromSeconds(3));
+
+                _cache.Set(cacheKey, response, cacheEntryOptions);
+            }
 
             // Filter by name if requested
             if (title != null)
@@ -65,7 +70,7 @@ namespace TimeChimp.Backend.Assessment.Services
             if (sortByAsc)
                 response = response.OrderBy(item => item.Title).ToList();
 
-            return response;
+            return response.ToList();
         }
 
         /// <summary>

@@ -13,6 +13,7 @@ namespace TimeChimp.Backend.Assessment
         public static void AddServices(this IServiceCollection services)
         {
             services.AddTransient<IGeneralNewsService, GeneralNewsService>();
+            services.AddMemoryCache();
         }
 
         /// <summary>
