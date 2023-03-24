@@ -1,5 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Caching.Memory;
+using System.ComponentModel.DataAnnotations;
 using System.Threading.Tasks;
 using TimeChimp.Backend.Assessment.Interfaces;
 using TimeChimp.Backend.Assessment.Services;
@@ -14,28 +16,42 @@ namespace TimeChimp.Backend.Assessment.Controllers.V1
     {
         public readonly IGeneralNewsService _generalNewsService;
 
-        public GeneralNewsController( IGeneralNewsService generalNewsService) {
+        public GeneralNewsController(IGeneralNewsService generalNewsService) {
             _generalNewsService = generalNewsService;
-        }
+        }   
 
         /// <summary>
         /// GET method responsible for returning the list of recent general news
         /// </summary>
-        /// <param name="number">Optional parameter</param>
-        /// <returns>A list of strings containing all the titles</returns>
+        /// <param name="title">Filter by title</param>
+        /// <param name="ascending"></param>
+        /// <returns>A list of NewsItem objects</returns>
         [HttpGet]
-        public async Task<IActionResult> GetNews(int number,
-            string title,
-            bool sortByTitle)
+        public async Task<IActionResult> GetNews(string title,
+            bool ascending = true
+            )
         {
-            var response = await _generalNewsService.GetGeneralNews(title, sortByTitle);
-            return new OkObjectResult(response); 
+            var response = await _generalNewsService.GetGeneralNews(title, ascending);
+            return new OkObjectResult(response);
         }
 
-        //public IActionResult Index()
-        //{
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="title"></param>
+        /// <param name="ascending"></param>
+        /// <param name="category"></param>
+        /// <returns></returns>
+        [HttpGet]
+        [Route("{category}")]
+        public async Task<IActionResult> GetNewsByCategory(string title,
+            bool ascending,
+            string category
+            )
+        {
+            var response = await _generalNewsService.GetGeneralNewsByCategory(title, ascending, category);
+            return new OkObjectResult(response);
+        }
 
-        //    return View();
-        //}
     }
 }

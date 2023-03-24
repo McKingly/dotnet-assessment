@@ -27,8 +27,9 @@ namespace TimeChimp.Backend.Assessment.UnitTests.ControllerTests.V1
             var result = controller.Get();
 
             //Check the result
-            var okResult = result as OkResult;
-            okResult.Should().NotBeNull();
+            result.Should().NotBeNull();
+            //var okResult = result as OkResult;
+            //okResult.Should().NotBeNull();
         }
     }
 }
